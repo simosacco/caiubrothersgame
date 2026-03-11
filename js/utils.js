@@ -11,5 +11,6 @@ function formatDate(timestamp) {
 }
 
 function showToast(message, type = 'success') {
-    alert(message); // Puoi sostituire con una libreria toast
+    // Usiamo una semplice alert per ora, ma potrebbe essere sostituita con una libreria toast
+    alert(message);
 }

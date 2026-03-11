@@ -58,9 +58,16 @@
 
     <div style="height: 70px;"></div>
 
+    <!-- Pulsante modifica homepage (visibile solo agli owner) -->
+    <div id="editHomeBtnContainer" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000; display: none;">
+        <button class="btn btn-primary btn-lg rounded-circle shadow" onclick="openHomeEditModal()" style="width: 60px; height: 60px;">
+            <i class="fas fa-pen"></i>
+        </button>
+    </div>
+
     <!-- PAGINE -->
     <div class="container mt-4">
-        <!-- HOME PAGE (dinamica) -->
+        <!-- HOME PAGE -->
         <div id="home" class="page">
             <div class="text-center my-5" data-aos="fade-up">
                 <h1 class="display-4 fw-bold gradient-text" id="homeTitle">Benvenuti ne "Il Faro"</h1>
@@ -94,7 +101,6 @@
                 <div class="col-md-3">
                     <select id="filterCategory" class="form-select form-select-lg rounded-pill">
                         <option value="">Tutte le categorie</option>
-                        <!-- popolato dinamicamente -->
                     </select>
                 </div>
                 <div class="col-md-3">
@@ -169,10 +175,12 @@
                             <div class="mb-3">
                                 <label class="form-label">Email</label>
                                 <input type="email" id="profileEmail" class="form-control" required>
+                                <small class="text-muted" id="emailChangeNote"></small>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Nuova password (lascia vuoto per non cambiare)</label>
                                 <input type="password" id="profilePassword" class="form-control">
+                                <small class="text-muted" id="passwordChangeNote"></small>
                             </div>
                             <button type="submit" class="btn btn-primary w-100">Aggiorna profilo</button>
                         </form>
@@ -270,7 +278,7 @@
                         <button type="submit" class="btn btn-primary">Salva modifiche home</button>
                     </form>
                 </div>
-                <!-- Gestione Utenti (permessi owner) -->
+                <!-- Gestione Utenti -->
                 <div class="tab-pane fade" id="adminUsers" role="tabpanel">
                     <h5 class="mb-3">Tutti gli utenti registrati</h5>
                     <div class="table-responsive">
@@ -359,7 +367,7 @@
         </div>
     </div>
 
-    <!-- Modale per scegliere il nome dopo Google (se primo accesso) -->
+    <!-- Modale per scegliere il nome dopo Google -->
     <div class="modal fade" id="nameModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow">
@@ -380,7 +388,7 @@
         </div>
     </div>
 
-    <!-- Modale per Evento/Prodotto/Attività (CRUD con Quill) -->
+    <!-- Modale per Evento/Prodotto/Attività/Categoria (CRUD con Quill) -->
     <div class="modal fade" id="itemModal" tabindex="-1">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content border-0 shadow">
@@ -395,7 +403,7 @@
                             <label class="form-label">Titolo/Nome</label>
                             <input type="text" id="itemName" class="form-control" required>
                         </div>
-                        <div class="mb-3">
+                        <div class="mb-3" id="quillContainer">
                             <label class="form-label">Descrizione (puoi formattare il testo)</label>
                             <div id="quillEditor" style="height: 200px;"></div>
                             <textarea id="itemDesc" style="display:none;"></textarea>
@@ -419,9 +427,7 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Categoria</label>
-                                <select id="productCategory" class="form-control">
-                                    <!-- popolato dinamicamente -->
-                                </select>
+                                <select id="productCategory" class="form-control"></select>
                             </div>
                         </div>
                         <!-- Campi attività -->
@@ -435,11 +441,44 @@
                                 <input type="text" id="activityLocation" class="form-control">
                             </div>
                         </div>
-                        <!-- Campi categoria -->
+                        <!-- Campi categoria (solo nome) -->
                         <div id="categoryFields" style="display:none;">
-                            <!-- solo nome, già preso da itemName -->
+                            <!-- nessun campo extra -->
                         </div>
                         <button type="submit" class="btn btn-primary rounded-pill w-100">Salva</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modale per modificare la homepage direttamente dalla home -->
+    <div class="modal fade" id="homeEditModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Modifica Homepage</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="homeEditForm">
+                        <div class="mb-3">
+                            <label class="form-label">Titolo principale</label>
+                            <input type="text" id="homeEditTitle" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Sottotitolo</label>
+                            <input type="text" id="homeEditSubtitle" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Titolo sezione Eventi</label>
+                            <input type="text" id="homeEditEventsTitle" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Titolo sezione Prodotti</label>
+                            <input type="text" id="homeEditProductsTitle" class="form-control">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Salva modifiche</button>
                     </form>
                 </div>
             </div>

@@ -2,6 +2,7 @@
 const firebaseConfig = {
   apiKey: "AIzaSyB5hVziQ8VrmtxPUhGB_LdI6KTYOJEMZxs",
   authDomain: "sito-chiesa-ab80a.firebaseapp.com",
+  databaseURL: "https://sito-chiesa-ab80a-default-rtdb.firebaseio.com",
   projectId: "sito-chiesa-ab80a",
   storageBucket: "sito-chiesa-ab80a.firebasestorage.app",
   messagingSenderId: "270391022356",

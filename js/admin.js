@@ -28,9 +28,10 @@ const admin = {
         document.getElementById('productFields').style.display = 'none';
         document.getElementById('activityFields').style.display = 'none';
         document.getElementById('categoryFields').style.display = 'none';
+        document.getElementById('quillContainer').style.display = 'block';
         document.getElementById('itemForm').reset();
         document.getElementById('itemId').value = '';
-        quill.root.innerHTML = '';
+        if (quill) quill.root.innerHTML = '';
         if (id) this.loadEventData(id);
         new bootstrap.Modal(document.getElementById('itemModal')).show();
     },
@@ -41,7 +42,7 @@ const admin = {
             const data = doc.data();
             document.getElementById('itemId').value = id;
             document.getElementById('itemName').value = data.title;
-            quill.root.innerHTML = data.description;
+            if (quill) quill.root.innerHTML = data.description;
             document.getElementById('eventDate').value = data.date.toDate().toISOString().slice(0,16);
             document.getElementById('eventLocation').value = data.location;
         }
@@ -83,9 +84,10 @@ const admin = {
         document.getElementById('productFields').style.display = 'block';
         document.getElementById('activityFields').style.display = 'none';
         document.getElementById('categoryFields').style.display = 'none';
+        document.getElementById('quillContainer').style.display = 'block';
         document.getElementById('itemForm').reset();
         document.getElementById('itemId').value = '';
-        quill.root.innerHTML = '';
+        if (quill) quill.root.innerHTML = '';
         // Popola select categorie
         this.populateCategorySelect();
         if (id) this.loadProductData(id);
@@ -111,7 +113,7 @@ const admin = {
             const data = doc.data();
             document.getElementById('itemId').value = id;
             document.getElementById('itemName').value = data.name;
-            quill.root.innerHTML = data.description;
+            if (quill) quill.root.innerHTML = data.description;
             document.getElementById('productPrice').value = data.price;
             document.getElementById('productCategory').value = data.category;
         }
@@ -151,9 +153,9 @@ const admin = {
         document.getElementById('productFields').style.display = 'none';
         document.getElementById('activityFields').style.display = 'none';
         document.getElementById('categoryFields').style.display = 'block';
+        document.getElementById('quillContainer').style.display = 'none'; // niente descrizione
         document.getElementById('itemForm').reset();
         document.getElementById('itemId').value = '';
-        quill.root.innerHTML = ''; // non serve per categoria, ma puliamo
         if (id) this.loadCategoryData(id);
         new bootstrap.Modal(document.getElementById('itemModal')).show();
     },
@@ -201,9 +203,10 @@ const admin = {
         document.getElementById('productFields').style.display = 'none';
         document.getElementById('activityFields').style.display = 'block';
         document.getElementById('categoryFields').style.display = 'none';
+        document.getElementById('quillContainer').style.display = 'block';
         document.getElementById('itemForm').reset();
         document.getElementById('itemId').value = '';
-        quill.root.innerHTML = '';
+        if (quill) quill.root.innerHTML = '';
         if (id) this.loadActivityData(id);
         new bootstrap.Modal(document.getElementById('itemModal')).show();
     },
@@ -214,7 +217,7 @@ const admin = {
             const data = doc.data();
             document.getElementById('itemId').value = id;
             document.getElementById('itemName').value = data.title;
-            quill.root.innerHTML = data.description;
+            if (quill) quill.root.innerHTML = data.description;
             if (data.date) {
                 document.getElementById('activityDate').value = data.date.toDate().toISOString().slice(0,16);
             }
@@ -244,7 +247,7 @@ const admin = {
         }
     },
 
-    // ---------- UTENTI (permessi owner) ----------
+    // ---------- UTENTI ----------
     async loadAllUsers() {
         const snapshot = await db.collection('users').get();
         const tbody = document.getElementById('usersList');
@@ -376,7 +379,7 @@ document.getElementById('itemForm').addEventListener('submit', async (e) => {
     showToast('Salvato con successo');
 });
 
-// Salvataggio homepage
+// Salvataggio homepage (dalla scheda admin)
 document.getElementById('homepageForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const data = {
@@ -387,9 +390,12 @@ document.getElementById('homepageForm').addEventListener('submit', async (e) => 
     };
     await db.collection('settings').doc('homepage').set(data);
     showToast('Homepage aggiornata');
-    // Ricarica la home per vedere le modifiche (se siamo su home)
+    // Se siamo su home, aggiorna anche la visualizzazione
     if (window.location.hash === '#home') {
-        loadHomeData();
+        document.getElementById('homeTitle').innerText = data.title;
+        document.getElementById('homeSubtitle').innerText = data.subtitle;
+        document.getElementById('homeEventsTitle').innerHTML = `<i class="fas fa-calendar-alt me-2"></i>${data.eventsTitle}`;
+        document.getElementById('homeProductsTitle').innerHTML = `<i class="fas fa-book-open me-2"></i>${data.productsTitle}`;
     }
 });
 

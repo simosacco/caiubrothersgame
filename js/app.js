@@ -3,9 +3,12 @@ let currentUser = null;
 let userRole = null;
 let quill; // editor
 
+// Per memorizzare i provider dell'utente
+let userProviders = [];
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Inizializza Quill (attenzione: potrebbe essere chiamato più volte, lo gestiamo)
-    if (!quill) {
+    // Inizializza Quill (se l'elemento esiste)
+    if (document.getElementById('quillEditor')) {
         quill = new Quill('#quillEditor', {
             theme: 'snow',
             placeholder: 'Scrivi qui la descrizione...',
@@ -19,13 +22,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-
-    // Sincronizza Quill con il textarea nascosto prima di inviare il form
-    document.getElementById('itemForm').addEventListener('submit', function(e) {
-        // Non previeni qui perché vogliamo che il form venga inviato normalmente
-        // ma assicuriamoci che il textarea venga aggiornato
-        document.getElementById('itemDesc').value = quill.root.innerHTML;
-    });
 
     // Gestione hash
     window.addEventListener('hashchange', showPage);
@@ -46,6 +42,9 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('userMenu').style.display = 'block';
             document.getElementById('userName').textContent = user.displayName || user.email;
 
+            // Ottieni i provider dell'utente
+            userProviders = user.providerData.map(p => p.providerId);
+
             // Ottieni il ruolo da Firestore
             const userDoc = await db.collection('users').doc(user.uid).get();
             if (userDoc.exists) {
@@ -56,7 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } else {
                 // Utente senza documento (dovrebbe capitare solo con Google se non completato)
-                // In teoria gestiamo nella registrazione Google, ma per sicurezza:
                 userRole = 'user';
                 await db.collection('users').doc(user.uid).set({
                     email: user.email,
@@ -68,8 +66,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (userRole === 'owner') {
                 document.getElementById('adminPanelLink').style.display = 'block';
+                document.getElementById('editHomeBtnContainer').style.display = 'block';
             } else {
                 document.getElementById('adminPanelLink').style.display = 'none';
+                document.getElementById('editHomeBtnContainer').style.display = 'none';
             }
 
             // Carica i dati del profilo se siamo sulla pagina profilo
@@ -79,7 +79,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             document.getElementById('loginLink').style.display = 'block';
             document.getElementById('userMenu').style.display = 'none';
+            document.getElementById('editHomeBtnContainer').style.display = 'none';
             userRole = null;
+            userProviders = [];
         }
     });
 
@@ -90,7 +92,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const password = document.getElementById('loginPassword').value;
         try {
             await auth.signInWithEmailAndPassword(email, password);
-            bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
+            // Chiudi modale
+            const modal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+            modal.hide();
             showToast('Login effettuato');
         } catch (error) {
             showToast(error.message, 'danger');
@@ -113,7 +117,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 role: 'user',
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
-            bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
+            const modal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+            modal.hide();
             showToast('Registrazione completata');
         } catch (error) {
             showToast(error.message, 'danger');
@@ -129,10 +134,13 @@ document.addEventListener('DOMContentLoaded', () => {
             // Controlla se esiste già in Firestore
             const userDoc = await db.collection('users').doc(user.uid).get();
             if (!userDoc.exists) {
-                // Primo accesso: chiedi il nome
-                $('#nameModal').modal('show');
+                // Primo accesso: mostra modale per nome
+                const nameModal = new bootstrap.Modal(document.getElementById('nameModal'));
+                nameModal.show();
             } else {
-                bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
+                // Chiudi modale login
+                const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+                if (loginModal) loginModal.hide();
                 showToast('Login con Google effettuato');
             }
         } catch (error) {
@@ -154,8 +162,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     role: 'user',
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                $('#nameModal').modal('hide');
-                bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
+                const nameModal = bootstrap.Modal.getInstance(document.getElementById('nameModal'));
+                nameModal.hide();
+                const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+                if (loginModal) loginModal.hide();
                 showToast('Benvenuto!');
             } catch (error) {
                 showToast(error.message, 'danger');
@@ -187,6 +197,24 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('profileName').value = currentUser.displayName || '';
             document.getElementById('profileEmail').value = currentUser.email || '';
             document.getElementById('profilePassword').value = '';
+
+            // Gestione modifiche in base al provider
+            const emailField = document.getElementById('profileEmail');
+            const emailNote = document.getElementById('emailChangeNote');
+            const passwordNote = document.getElementById('passwordChangeNote');
+
+            if (userProviders.includes('google.com')) {
+                // Utente Google: non può cambiare email, né password
+                emailField.disabled = true;
+                emailNote.textContent = 'Email non modificabile (account Google)';
+                document.getElementById('profilePassword').disabled = true;
+                passwordNote.textContent = 'Password non modificabile (account Google)';
+            } else {
+                emailField.disabled = false;
+                emailNote.textContent = '';
+                document.getElementById('profilePassword').disabled = false;
+                passwordNote.textContent = '';
+            }
         }
     }
 
@@ -202,11 +230,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 await currentUser.updateProfile({ displayName: newName });
                 await db.collection('users').doc(currentUser.uid).update({ displayName: newName });
             }
-            if (newEmail !== currentUser.email) {
+            // Cambio email solo se non è Google
+            if (!userProviders.includes('google.com') && newEmail !== currentUser.email) {
                 await currentUser.updateEmail(newEmail);
                 await db.collection('users').doc(currentUser.uid).update({ email: newEmail });
             }
-            if (newPassword) {
+            if (!userProviders.includes('google.com') && newPassword) {
                 await currentUser.updatePassword(newPassword);
             }
             showToast('Profilo aggiornato');
@@ -347,7 +376,6 @@ async function loadActivities() {
 async function loadCategoriesFilter() {
     const snapshot = await db.collection('categories').orderBy('name').get();
     const select = document.getElementById('filterCategory');
-    // Mantieni l'opzione "Tutte le categorie"
     select.innerHTML = '<option value="">Tutte le categorie</option>';
     snapshot.forEach(doc => {
         const cat = doc.data();
@@ -419,3 +447,42 @@ function createActivityCard(id, act) {
 document.getElementById('searchProducts').addEventListener('input', loadProducts);
 document.getElementById('filterCategory').addEventListener('change', loadProducts);
 document.getElementById('sortProducts').addEventListener('change', loadProducts);
+
+// Funzione per aprire il modal di modifica homepage (chiamata dal pulsante fluttuante)
+function openHomeEditModal() {
+    // Carica i dati correnti
+    const title = document.getElementById('homeTitle').innerText;
+    const subtitle = document.getElementById('homeSubtitle').innerText;
+    // Estrae il testo puro dai titoli delle sezioni (ignora le icone)
+    const eventsTitle = document.getElementById('homeEventsTitle').innerText.replace(/Prossimi Eventi/i, 'Prossimi Eventi').trim();
+    const productsTitle = document.getElementById('homeProductsTitle').innerText.replace(/Nuovi Arrivi in Libreria/i, 'Nuovi Arrivi in Libreria').trim();
+
+    document.getElementById('homeEditTitle').value = title;
+    document.getElementById('homeEditSubtitle').value = subtitle;
+    document.getElementById('homeEditEventsTitle').value = eventsTitle;
+    document.getElementById('homeEditProductsTitle').value = productsTitle;
+
+    const modal = new bootstrap.Modal(document.getElementById('homeEditModal'));
+    modal.show();
+}
+
+// Gestione salvataggio homepage dal modal
+document.getElementById('homeEditForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const data = {
+        title: document.getElementById('homeEditTitle').value,
+        subtitle: document.getElementById('homeEditSubtitle').value,
+        eventsTitle: document.getElementById('homeEditEventsTitle').value,
+        productsTitle: document.getElementById('homeEditProductsTitle').value
+    };
+    await db.collection('settings').doc('homepage').set(data);
+    // Aggiorna la home
+    document.getElementById('homeTitle').innerText = data.title;
+    document.getElementById('homeSubtitle').innerText = data.subtitle;
+    document.getElementById('homeEventsTitle').innerHTML = `<i class="fas fa-calendar-alt me-2"></i>${data.eventsTitle}`;
+    document.getElementById('homeProductsTitle').innerHTML = `<i class="fas fa-book-open me-2"></i>${data.productsTitle}`;
+    
+    const modal = bootstrap.Modal.getInstance(document.getElementById('homeEditModal'));
+    modal.hide();
+    showToast('Homepage aggiornata');
+});
