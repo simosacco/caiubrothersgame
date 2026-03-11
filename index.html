@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Il Faro - Chiesa Cristiana Evangelica Avigliana</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts (Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <!-- Quill Rich Text Editor -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <!-- AOS (Animate On Scroll) -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="mainNavbar">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">
+                <i class="fas fa-church me-2"></i>Il Faro - Avigliana
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#events">Eventi</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#products">Libreria</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#activities">Attività</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#contacts">Contatti</a></li>
+                    <li class="nav-item dropdown" id="userMenu" style="display:none;">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle"></i> <span id="userName"></span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#" id="profileLink">Il mio profilo</a></li>
+                            <li><a class="dropdown-item" href="#" id="adminPanelLink" style="display:none;">Pannello Admin</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" id="logoutBtn">Logout</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item" id="loginLink">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginModal">
+                            <i class="fas fa-sign-in-alt me-1"></i>Accedi/Registrati
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div style="height: 70px;"></div>
+
+    <!-- PAGINE -->
+    <div class="container mt-4">
+        <!-- HOME PAGE (dinamica) -->
+        <div id="home" class="page">
+            <div class="text-center my-5" data-aos="fade-up">
+                <h1 class="display-4 fw-bold gradient-text" id="homeTitle">Benvenuti ne "Il Faro"</h1>
+                <p class="lead text-muted" id="homeSubtitle">Chiesa Cristiana Evangelica di Avigliana (TO)</p>
+            </div>
+
+            <section class="my-5" data-aos="fade-up" data-aos-delay="100">
+                <h2 class="section-title" id="homeEventsTitle"><i class="fas fa-calendar-alt me-2"></i>Prossimi Eventi</h2>
+                <div id="latest-events" class="row g-4"></div>
+            </section>
+
+            <section class="my-5" data-aos="fade-up" data-aos-delay="200">
+                <h2 class="section-title" id="homeProductsTitle"><i class="fas fa-book-open me-2"></i>Nuovi Arrivi in Libreria</h2>
+                <div id="latest-products" class="row g-4"></div>
+            </section>
+        </div>
+
+        <!-- EVENTI -->
+        <div id="events" class="page" style="display:none;">
+            <h1 class="section-title" data-aos="fade-up">Tutti gli Eventi</h1>
+            <div id="events-list" class="row g-4 mt-2"></div>
+        </div>
+
+        <!-- PRODOTTI -->
+        <div id="products" class="page" style="display:none;">
+            <h1 class="section-title" data-aos="fade-up">Libreria Cristiana</h1>
+            <div class="row mb-4 g-3" data-aos="fade-up" data-aos-delay="50">
+                <div class="col-md-4">
+                    <input type="text" id="searchProducts" class="form-control form-control-lg rounded-pill" placeholder="🔍 Cerca...">
+                </div>
+                <div class="col-md-3">
+                    <select id="filterCategory" class="form-select form-select-lg rounded-pill">
+                        <option value="">Tutte le categorie</option>
+                        <!-- popolato dinamicamente -->
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select id="sortProducts" class="form-select form-select-lg rounded-pill">
+                        <option value="nameAsc">Nome A-Z</option>
+                        <option value="nameDesc">Nome Z-A</option>
+                        <option value="priceAsc">Prezzo crescente</option>
+                        <option value="priceDesc">Prezzo decrescente</option>
+                    </select>
+                </div>
+            </div>
+            <div id="products-list" class="row g-4"></div>
+        </div>
+
+        <!-- ATTIVITÀ -->
+        <div id="activities" class="page" style="display:none;">
+            <h1 class="section-title" data-aos="fade-up">Le nostre Attività</h1>
+            <div id="activities-list" class="row g-4 mt-2"></div>
+        </div>
+
+        <!-- CONTATTI -->
+        <div id="contacts" class="page" style="display:none;">
+            <h1 class="section-title" data-aos="fade-up">Contattaci</h1>
+            <div class="row g-5">
+                <div class="col-md-6" data-aos="fade-right">
+                    <div class="contact-card p-4">
+                        <form id="contactForm">
+                            <div class="mb-4">
+                                <label for="contactEmail" class="form-label fw-semibold">La tua email</label>
+                                <input type="email" class="form-control form-control-lg rounded-pill" id="contactEmail" required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="contactMessage" class="form-label fw-semibold">Messaggio</label>
+                                <textarea class="form-control rounded-4" id="contactMessage" rows="5" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill w-100">
+                                <i class="fas fa-paper-plane me-2"></i>Invia messaggio
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-md-6" data-aos="fade-left">
+                    <div class="info-card p-4">
+                        <h5><i class="fas fa-map-marker-alt me-2 text-primary"></i>Dove siamo</h5>
+                        <p class="mb-4">Via Statale, 123 – 10051 Avigliana (TO)</p>
+                        <h5><i class="fas fa-envelope me-2 text-primary"></i>Email</h5>
+                        <p class="mb-4">info@ilfaroavigliana.it</p>
+                        <h5><i class="fas fa-phone-alt me-2 text-primary"></i>Telefono</h5>
+                        <p>+39 011 1234567</p>
+                        <hr class="my-4">
+                        <div class="social-links">
+                            <a href="#" class="me-3"><i class="fab fa-facebook-f fa-2x"></i></a>
+                            <a href="#" class="me-3"><i class="fab fa-instagram fa-2x"></i></a>
+                            <a href="#" class="me-3"><i class="fab fa-youtube fa-2x"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PROFILO UTENTE -->
+        <div id="profile" class="page" style="display:none;">
+            <h1 class="section-title" data-aos="fade-up">Il mio profilo</h1>
+            <div class="row">
+                <div class="col-md-6 mx-auto">
+                    <div class="card p-4">
+                        <form id="profileForm">
+                            <div class="mb-3">
+                                <label class="form-label">Nome visualizzato</label>
+                                <input type="text" id="profileName" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" id="profileEmail" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Nuova password (lascia vuoto per non cambiare)</label>
+                                <input type="password" id="profilePassword" class="form-control">
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Aggiorna profilo</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ADMIN PANEL -->
+        <div id="admin" class="page" style="display:none;">
+            <h1 class="section-title" data-aos="fade-up">Pannello di Amministrazione</h1>
+            <ul class="nav nav-tabs" id="adminTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="events-tab" data-bs-toggle="tab" data-bs-target="#adminEvents" type="button" role="tab">Eventi</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="products-tab" data-bs-toggle="tab" data-bs-target="#adminProducts" type="button" role="tab">Prodotti</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="categories-tab" data-bs-toggle="tab" data-bs-target="#adminCategories" type="button" role="tab">Categorie</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="activities-tab" data-bs-toggle="tab" data-bs-target="#adminActivities" type="button" role="tab">Attività</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="homepage-tab" data-bs-toggle="tab" data-bs-target="#adminHomepage" type="button" role="tab">Homepage</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="users-tab" data-bs-toggle="tab" data-bs-target="#adminUsers" type="button" role="tab">Gestione Utenti</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="import-tab" data-bs-toggle="tab" data-bs-target="#adminImport" type="button" role="tab">Importa CSV</button>
+                </li>
+            </ul>
+            <div class="tab-content p-4 bg-white rounded-4 shadow-sm mt-3">
+                <!-- Eventi -->
+                <div class="tab-pane fade show active" id="adminEvents" role="tabpanel">
+                    <button class="btn btn-success mb-3 rounded-pill" onclick="admin.showEventModal()"><i class="fas fa-plus me-2"></i>Nuovo Evento</button>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead><tr><th>Titolo</th><th>Data</th><th>Azioni</th></tr></thead>
+                            <tbody id="adminEventsTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- Prodotti -->
+                <div class="tab-pane fade" id="adminProducts" role="tabpanel">
+                    <button class="btn btn-success mb-3 rounded-pill" onclick="admin.showProductModal()"><i class="fas fa-plus me-2"></i>Nuovo Prodotto</button>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead><tr><th>Nome</th><th>Prezzo</th><th>Categoria</th><th>Azioni</th></tr></thead>
+                            <tbody id="adminProductsTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- Categorie -->
+                <div class="tab-pane fade" id="adminCategories" role="tabpanel">
+                    <button class="btn btn-success mb-3 rounded-pill" onclick="admin.showCategoryModal()"><i class="fas fa-plus me-2"></i>Nuova Categoria</button>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead><tr><th>Nome</th><th>Azioni</th></tr></thead>
+                            <tbody id="adminCategoriesTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- Attività -->
+                <div class="tab-pane fade" id="adminActivities" role="tabpanel">
+                    <button class="btn btn-success mb-3 rounded-pill" onclick="admin.showActivityModal()"><i class="fas fa-plus me-2"></i>Nuova Attività</button>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead><tr><th>Titolo</th><th>Data (opz.)</th><th>Azioni</th></tr></thead>
+                            <tbody id="adminActivitiesTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- Homepage -->
+                <div class="tab-pane fade" id="adminHomepage" role="tabpanel">
+                    <form id="homepageForm">
+                        <div class="mb-3">
+                            <label class="form-label">Titolo principale</label>
+                            <input type="text" id="homeTitleInput" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Sottotitolo</label>
+                            <input type="text" id="homeSubtitleInput" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Titolo sezione Eventi</label>
+                            <input type="text" id="homeEventsTitleInput" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Titolo sezione Prodotti</label>
+                            <input type="text" id="homeProductsTitleInput" class="form-control">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Salva modifiche home</button>
+                    </form>
+                </div>
+                <!-- Gestione Utenti (permessi owner) -->
+                <div class="tab-pane fade" id="adminUsers" role="tabpanel">
+                    <h5 class="mb-3">Tutti gli utenti registrati</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead><tr><th>Email</th><th>Nome</th><th>Ruolo</th><th>Azioni</th></tr></thead>
+                            <tbody id="usersList"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- Import CSV -->
+                <div class="tab-pane fade" id="adminImport" role="tabpanel">
+                    <h5 class="mb-3">Importa prodotti da CSV</h5>
+                    <p class="text-muted">Formato: nome,descrizione,prezzo,categoria</p>
+                    <input type="file" id="csvFile" accept=".csv" class="form-control mb-3">
+                    <button class="btn btn-primary rounded-pill" onclick="admin.importCSV()"><i class="fas fa-upload me-2"></i>Importa</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer mt-5 py-4">
+        <div class="container text-center">
+            <p class="mb-0">&copy; 2025 Chiesa Cristiana Evangelica "Il Faro" - Avigliana (TO)</p>
+        </div>
+    </footer>
+
+    <!-- MODALI -->
+    <!-- Login/Registrazione Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Accedi o Registrati</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <ul class="nav nav-tabs" id="loginTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login" type="button" role="tab">Accedi</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#register" type="button" role="tab">Registrati</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content mt-3">
+                        <!-- Login -->
+                        <div class="tab-pane fade show active" id="login" role="tabpanel">
+                            <form id="loginForm">
+                                <div class="mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" id="loginEmail" class="form-control" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Password</label>
+                                    <input type="password" id="loginPassword" class="form-control" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100 mb-3">Accedi</button>
+                            </form>
+                        </div>
+                        <!-- Registrazione -->
+                        <div class="tab-pane fade" id="register" role="tabpanel">
+                            <form id="registerForm">
+                                <div class="mb-3">
+                                    <label class="form-label">Nome</label>
+                                    <input type="text" id="registerName" class="form-control" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" id="registerEmail" class="form-control" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Password</label>
+                                    <input type="password" id="registerPassword" class="form-control" required>
+                                </div>
+                                <button type="submit" class="btn btn-success w-100">Registrati</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="text-center mt-3">— oppure —</div>
+                    <button id="googleLoginBtn" class="btn btn-outline-danger w-100 mt-2">
+                        <i class="fab fa-google me-2"></i>Continua con Google
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modale per scegliere il nome dopo Google (se primo accesso) -->
+    <div class="modal fade" id="nameModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Benvenuto! Scegli il tuo nome</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="nameForm">
+                        <div class="mb-3">
+                            <label class="form-label">Nome visualizzato</label>
+                            <input type="text" id="displayNameInput" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Salva</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modale per Evento/Prodotto/Attività (CRUD con Quill) -->
+    <div class="modal fade" id="itemModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="modalTitle"></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="itemForm">
+                        <input type="hidden" id="itemId">
+                        <div class="mb-3">
+                            <label class="form-label">Titolo/Nome</label>
+                            <input type="text" id="itemName" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Descrizione (puoi formattare il testo)</label>
+                            <div id="quillEditor" style="height: 200px;"></div>
+                            <textarea id="itemDesc" style="display:none;"></textarea>
+                        </div>
+                        <!-- Campi evento -->
+                        <div id="eventFields" style="display:none;">
+                            <div class="mb-3">
+                                <label class="form-label">Data e ora</label>
+                                <input type="datetime-local" id="eventDate" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Luogo</label>
+                                <input type="text" id="eventLocation" class="form-control" required>
+                            </div>
+                        </div>
+                        <!-- Campi prodotto -->
+                        <div id="productFields" style="display:none;">
+                            <div class="mb-3">
+                                <label class="form-label">Prezzo (€)</label>
+                                <input type="number" step="0.01" id="productPrice" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Categoria</label>
+                                <select id="productCategory" class="form-control">
+                                    <!-- popolato dinamicamente -->
+                                </select>
+                            </div>
+                        </div>
+                        <!-- Campi attività -->
+                        <div id="activityFields" style="display:none;">
+                            <div class="mb-3">
+                                <label class="form-label">Data (opzionale)</label>
+                                <input type="datetime-local" id="activityDate" class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Luogo (opzionale)</label>
+                                <input type="text" id="activityLocation" class="form-control">
+                            </div>
+                        </div>
+                        <!-- Campi categoria -->
+                        <div id="categoryFields" style="display:none;">
+                            <!-- solo nome, già preso da itemName -->
+                        </div>
+                        <button type="submit" class="btn btn-primary rounded-pill w-100">Salva</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+
+    <!-- I tuoi file JS -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/emailjs-config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/admin.js"></script>
+
+    <script>
+        AOS.init({ duration: 800, once: true, offset: 100 });
+    </script>
+</body>
+</html>

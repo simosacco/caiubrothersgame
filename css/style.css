@@ -1,0 +1,190 @@
+/* Variabili CSS */
+:root {
+    --primary: #4e73df;
+    --primary-dark: #2e59d9;
+    --secondary: #1cc88a;
+    --dark: #5a5c69;
+    --light: #f8f9fc;
+    --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--light);
+    color: #333;
+    scroll-behavior: smooth;
+}
+
+/* Navbar effetto vetro */
+.navbar {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+.navbar.scrolled {
+    background: rgba(255,255,255,0.98);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+}
+.navbar-brand {
+    color: var(--primary) !important;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+.nav-link {
+    color: var(--dark) !important;
+    font-weight: 500;
+    margin: 0 5px;
+    transition: color 0.3s ease;
+}
+.nav-link:hover {
+    color: var(--primary) !important;
+}
+.navbar-dark .navbar-nav .nav-link {
+    color: rgba(0,0,0,0.7) !important;
+}
+.navbar-dark .navbar-nav .nav-link:hover {
+    color: var(--primary) !important;
+}
+
+/* Titoli sezione */
+.section-title {
+    font-weight: 700;
+    margin-bottom: 2rem;
+    position: relative;
+    display: inline-block;
+}
+.section-title:after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 60px;
+    height: 4px;
+    background: var(--gradient);
+    border-radius: 2px;
+}
+
+.gradient-text {
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Card moderne */
+.card {
+    border: none;
+    border-radius: 20px;
+    background: white;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+    height: 100%;
+}
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(78, 115, 223, 0.2);
+}
+.card-body {
+    padding: 1.8rem;
+}
+.card-title {
+    font-weight: 700;
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    color: var(--primary);
+}
+.card-text {
+    color: #6c757d;
+    line-height: 1.6;
+}
+.card-text p {
+    margin-bottom: 0.5rem;
+}
+.card-text ul, .card-text ol {
+    padding-left: 1.5rem;
+}
+
+/* Badge categoria */
+.badge-category {
+    background: var(--gradient);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 30px;
+    font-weight: 500;
+    font-size: 0.85rem;
+}
+
+/* Form elements */
+.form-control, .form-select {
+    border: 2px solid #e9ecef;
+    border-radius: 15px;
+    padding: 0.75rem 1.2rem;
+    transition: all 0.3s ease;
+}
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+.btn-primary {
+    background: var(--gradient);
+    border: none;
+    padding: 0.75rem 2rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(78, 115, 223, 0.4);
+}
+.btn-success {
+    background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%);
+    border: none;
+}
+.btn-danger {
+    background: linear-gradient(135deg, #e74a3b 0%, #c0392b 100%);
+    border: none;
+}
+
+/* Card contatti */
+.contact-card, .info-card {
+    background: white;
+    border-radius: 30px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+    height: 100%;
+}
+.info-card .social-links a {
+    color: var(--primary);
+    transition: color 0.3s ease;
+}
+.info-card .social-links a:hover {
+    color: var(--primary-dark);
+}
+
+/* Footer */
+.footer {
+    background: white;
+    border-top: 1px solid #e9ecef;
+    color: var(--dark);
+}
+
+/* Tabella admin */
+.table {
+    border-radius: 15px;
+    overflow: hidden;
+}
+.table thead {
+    background: var(--gradient);
+    color: white;
+}
+.table tbody tr:hover {
+    background: #f1f5fe;
+}
+
+/* Quill editor */
+.ql-editor {
+    min-height: 180px;
+    font-family: 'Inter', sans-serif;
+}
