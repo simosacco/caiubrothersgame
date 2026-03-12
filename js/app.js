@@ -2,13 +2,12 @@
 let currentUser = null;
 let userRole = null;
 let quill; // editor
-
-// Per memorizzare i provider dell'utente
 let userProviders = [];
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Inizializza Quill (se l'elemento esiste)
-    if (document.getElementById('quillEditor')) {
+    // Inizializza Quill se l'elemento esiste
+    const quillElement = document.getElementById('quillEditor');
+    if (quillElement) {
         quill = new Quill('#quillEditor', {
             theme: 'snow',
             placeholder: 'Scrivi qui la descrizione...',
@@ -49,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const userDoc = await db.collection('users').doc(user.uid).get();
             if (userDoc.exists) {
                 userRole = userDoc.data().role;
-                // Se l'utente non ha displayName in auth ma ce l'ha in Firestore, aggiorna auth?
+                // Se l'utente non ha displayName in auth ma ce l'ha in Firestore, aggiorna auth
                 if (!user.displayName && userDoc.data().displayName) {
                     await user.updateProfile({ displayName: userDoc.data().displayName });
                 }
@@ -72,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('editHomeBtnContainer').style.display = 'none';
             }
 
-            // Carica i dati del profilo se siamo sulla pagina profilo
+            // Se siamo sulla pagina profilo, carica i dati
             if (window.location.hash === '#profile') {
                 loadProfileData();
             }
@@ -92,7 +91,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const password = document.getElementById('loginPassword').value;
         try {
             await auth.signInWithEmailAndPassword(email, password);
-            // Chiudi modale
             const modal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
             modal.hide();
             showToast('Login effettuato');
@@ -138,7 +136,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const nameModal = new bootstrap.Modal(document.getElementById('nameModal'));
                 nameModal.show();
             } else {
-                // Chiudi modale login
                 const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
                 if (loginModal) loginModal.hide();
                 showToast('Login con Google effettuato');
@@ -201,18 +198,19 @@ document.addEventListener('DOMContentLoaded', () => {
             // Gestione modifiche in base al provider
             const emailField = document.getElementById('profileEmail');
             const emailNote = document.getElementById('emailChangeNote');
+            const passwordField = document.getElementById('profilePassword');
             const passwordNote = document.getElementById('passwordChangeNote');
 
             if (userProviders.includes('google.com')) {
                 // Utente Google: non può cambiare email, né password
                 emailField.disabled = true;
                 emailNote.textContent = 'Email non modificabile (account Google)';
-                document.getElementById('profilePassword').disabled = true;
+                passwordField.disabled = true;
                 passwordNote.textContent = 'Password non modificabile (account Google)';
             } else {
                 emailField.disabled = false;
                 emailNote.textContent = '';
-                document.getElementById('profilePassword').disabled = false;
+                passwordField.disabled = false;
                 passwordNote.textContent = '';
             }
         }
@@ -230,11 +228,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 await currentUser.updateProfile({ displayName: newName });
                 await db.collection('users').doc(currentUser.uid).update({ displayName: newName });
             }
-            // Cambio email solo se non è Google
+            // Cambio email solo se non è Google e l'email è cambiata
             if (!userProviders.includes('google.com') && newEmail !== currentUser.email) {
                 await currentUser.updateEmail(newEmail);
                 await db.collection('users').doc(currentUser.uid).update({ email: newEmail });
             }
+            // Cambio password solo se non è Google e è stata inserita una nuova password
             if (!userProviders.includes('google.com') && newPassword) {
                 await currentUser.updatePassword(newPassword);
             }
@@ -253,7 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
             await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
                 from_email: email,
                 message: message,
-                to_email: 'info@ilfaroavigliana.it' // Fissa
+                to_email: 'info@ilfaroavigliana.it'
             });
             showToast('Messaggio inviato con successo!');
             document.getElementById('contactForm').reset();
@@ -266,7 +265,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadHomeData();
     loadLatestEvents();
     loadLatestProducts();
-    loadCategoriesFilter(); // per il filtro prodotti
+    loadCategoriesFilter();
 });
 
 function showPage() {
@@ -278,7 +277,7 @@ function showPage() {
         if (hash === 'events') loadEvents();
         if (hash === 'products') {
             loadProducts();
-            loadCategoriesFilter(); // ricarica le categorie nel filtro
+            loadCategoriesFilter();
         }
         if (hash === 'activities') loadActivities();
         if (hash === 'profile') {
@@ -450,7 +449,6 @@ document.getElementById('sortProducts').addEventListener('change', loadProducts)
 
 // Funzione per aprire il modal di modifica homepage (chiamata dal pulsante fluttuante)
 function openHomeEditModal() {
-    // Carica i dati correnti
     const title = document.getElementById('homeTitle').innerText;
     const subtitle = document.getElementById('homeSubtitle').innerText;
     // Estrae il testo puro dai titoli delle sezioni (ignora le icone)

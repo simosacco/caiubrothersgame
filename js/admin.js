@@ -88,7 +88,6 @@ const admin = {
         document.getElementById('itemForm').reset();
         document.getElementById('itemId').value = '';
         if (quill) quill.root.innerHTML = '';
-        // Popola select categorie
         this.populateCategorySelect();
         if (id) this.loadProductData(id);
         new bootstrap.Modal(document.getElementById('itemModal')).show();
@@ -153,7 +152,7 @@ const admin = {
         document.getElementById('productFields').style.display = 'none';
         document.getElementById('activityFields').style.display = 'none';
         document.getElementById('categoryFields').style.display = 'block';
-        document.getElementById('quillContainer').style.display = 'none'; // niente descrizione
+        document.getElementById('quillContainer').style.display = 'none';
         document.getElementById('itemForm').reset();
         document.getElementById('itemId').value = '';
         if (id) this.loadCategoryData(id);
@@ -308,75 +307,85 @@ const admin = {
 // Gestione salvataggio dal modal
 document.getElementById('itemForm').addEventListener('submit', async (e) => {
     e.preventDefault();
+
+    // Sincronizza Quill con il textarea nascosto
+    if (quill) {
+        document.getElementById('itemDesc').value = quill.root.innerHTML;
+    }
+
     const id = document.getElementById('itemId').value;
     const name = document.getElementById('itemName').value;
     const description = document.getElementById('itemDesc').value;
 
-    if (admin.currentItemType === 'event') {
-        const date = new Date(document.getElementById('eventDate').value);
-        const location = document.getElementById('eventLocation').value;
-        const data = {
-            title: name,
-            description: description,
-            date: firebase.firestore.Timestamp.fromDate(date),
-            location: location,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
-        if (id) {
-            await db.collection('events').doc(id).update(data);
-        } else {
-            await db.collection('events').add(data);
+    try {
+        if (admin.currentItemType === 'event') {
+            const date = new Date(document.getElementById('eventDate').value);
+            const location = document.getElementById('eventLocation').value;
+            const data = {
+                title: name,
+                description: description,
+                date: firebase.firestore.Timestamp.fromDate(date),
+                location: location,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            if (id) {
+                await db.collection('events').doc(id).update(data);
+            } else {
+                await db.collection('events').add(data);
+            }
+        } else if (admin.currentItemType === 'product') {
+            const price = parseFloat(document.getElementById('productPrice').value);
+            const category = document.getElementById('productCategory').value;
+            const data = {
+                name: name,
+                description: description,
+                price: price,
+                category: category,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            if (id) {
+                await db.collection('products').doc(id).update(data);
+            } else {
+                await db.collection('products').add(data);
+            }
+        } else if (admin.currentItemType === 'activity') {
+            const dateInput = document.getElementById('activityDate').value;
+            const location = document.getElementById('activityLocation').value;
+            const data = {
+                title: name,
+                description: description,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            if (dateInput) data.date = firebase.firestore.Timestamp.fromDate(new Date(dateInput));
+            if (location) data.location = location;
+            if (id) {
+                await db.collection('activities').doc(id).update(data);
+            } else {
+                await db.collection('activities').add(data);
+            }
+        } else if (admin.currentItemType === 'category') {
+            const data = { name: name };
+            if (id) {
+                await db.collection('categories').doc(id).update(data);
+            } else {
+                await db.collection('categories').add(data);
+            }
         }
-    } else if (admin.currentItemType === 'product') {
-        const price = parseFloat(document.getElementById('productPrice').value);
-        const category = document.getElementById('productCategory').value;
-        const data = {
-            name: name,
-            description: description,
-            price: price,
-            category: category,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
-        if (id) {
-            await db.collection('products').doc(id).update(data);
-        } else {
-            await db.collection('products').add(data);
-        }
-    } else if (admin.currentItemType === 'activity') {
-        const dateInput = document.getElementById('activityDate').value;
-        const location = document.getElementById('activityLocation').value;
-        const data = {
-            title: name,
-            description: description,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
-        if (dateInput) data.date = firebase.firestore.Timestamp.fromDate(new Date(dateInput));
-        if (location) data.location = location;
-        if (id) {
-            await db.collection('activities').doc(id).update(data);
-        } else {
-            await db.collection('activities').add(data);
-        }
-    } else if (admin.currentItemType === 'category') {
-        const data = { name: name };
-        if (id) {
-            await db.collection('categories').doc(id).update(data);
-        } else {
-            await db.collection('categories').add(data);
-        }
+
+        // Chiudi la modale
+        const modal = bootstrap.Modal.getInstance(document.getElementById('itemModal'));
+        modal.hide();
+
+        // Ricarica la lista appropriata
+        if (admin.currentItemType === 'event') admin.loadEvents();
+        else if (admin.currentItemType === 'product') admin.loadProducts();
+        else if (admin.currentItemType === 'activity') admin.loadActivities();
+        else if (admin.currentItemType === 'category') admin.loadCategories();
+
+        showToast('Salvato con successo');
+    } catch (error) {
+        showToast('Errore durante il salvataggio: ' + error.message, 'danger');
     }
-
-    // Chiudi la modale
-    const modal = bootstrap.Modal.getInstance(document.getElementById('itemModal'));
-    modal.hide();
-
-    // Ricarica la lista appropriata
-    if (admin.currentItemType === 'event') admin.loadEvents();
-    else if (admin.currentItemType === 'product') admin.loadProducts();
-    else if (admin.currentItemType === 'activity') admin.loadActivities();
-    else if (admin.currentItemType === 'category') admin.loadCategories();
-
-    showToast('Salvato con successo');
 });
 
 // Salvataggio homepage (dalla scheda admin)
@@ -390,7 +399,6 @@ document.getElementById('homepageForm').addEventListener('submit', async (e) => 
     };
     await db.collection('settings').doc('homepage').set(data);
     showToast('Homepage aggiornata');
-    // Se siamo su home, aggiorna anche la visualizzazione
     if (window.location.hash === '#home') {
         document.getElementById('homeTitle').innerText = data.title;
         document.getElementById('homeSubtitle').innerText = data.subtitle;
